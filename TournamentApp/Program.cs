@@ -1,15 +1,14 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using HotChocolate.Data; // Wa¿ne dla wersji 15
+using HotChocolate.Data;
 using System.Text;
 using TournamentApp.Data;
 using TournamentApp.GraphQL;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. ZMIANA TUTAJ: U¿ywamy AddPooledDbContextFactory zamiast AddDbContext
-// To jest wymagane, aby .RegisterDbContextFactory na dole dzia³a³o poprawnie
+
 builder.Services.AddPooledDbContextFactory<AppDbContext>(options =>
     options.UseSqlite("Data Source=tournament.db"));
 
@@ -42,14 +41,14 @@ builder.Services
     .AddProjections()
     .AddFiltering()
     .AddSorting()
-    .RegisterDbContextFactory<AppDbContext>(); // To pasuje do AddPooledDbContextFactory wy¿ej
+    .RegisterDbContextFactory<AppDbContext>();
 
 var app = builder.Build();
 
-// Automatyczna migracja bazy danych (Przy u¿yciu Factory trzeba pobraæ fabrykê najpierw)
+
 using (var scope = app.Services.CreateScope())
 {
-    // Pobieramy fabrykê, tworzymy kontekst, tworzymy bazê
+    
     var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
     using var db = factory.CreateDbContext();
     db.Database.EnsureCreated();
@@ -58,6 +57,6 @@ using (var scope = app.Services.CreateScope())
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGraphQL(); // To sprawia, ¿e API dzia³a pod /graphql
+app.MapGraphQL();
 
 app.Run();
